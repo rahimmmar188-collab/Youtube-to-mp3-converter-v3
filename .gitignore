@@ -1,0 +1,6 @@
+node_modules/
+*.log
+.env
+.DS_Store
+# Ignore the temp script files if they are not needed
+*-player-script.js
