@@ -9,7 +9,12 @@ const port = 3000;
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 app.use(cors());
+app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
 
 // Timeout wrapper
 const withTimeout = (handler, timeoutMs = 60000) => {
