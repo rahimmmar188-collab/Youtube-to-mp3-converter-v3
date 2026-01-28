@@ -8,10 +8,6 @@
         {
             "source": "/convert",
             "destination": "/api/index.js"
-        },
-        {
-            "source": "/(.*)",
-            "destination": "/public/$1"
         }
     ]
 }

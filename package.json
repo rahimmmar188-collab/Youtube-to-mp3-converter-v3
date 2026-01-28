@@ -2,7 +2,7 @@
   "name": "youtube-to-mp3-converter",
   "version": "1.0.0",
   "description": "A modern Youtube to MP3 converter",
-  "main": "server.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js"
