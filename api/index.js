@@ -9,7 +9,6 @@ const port = 3000;
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 app.use(cors());
-app.use(express.static('public'));
 app.use(express.json());
 
 // Timeout wrapper
@@ -30,7 +29,8 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 // Dynamically resolve yt-dlp path (works on Windows and Linux)
-const ytDlpPath = require('youtube-dl-exec').create(path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
+// Note: We use .. to go up from the /api folder to find node_modules in the root
+const ytDlpPath = require('youtube-dl-exec').create(path.join(__dirname, '..', 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
 
 // Helper to run yt-dlp and get JSON output
 const getInfo = (url) => {
