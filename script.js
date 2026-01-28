@@ -21,7 +21,7 @@ urlInput.addEventListener('input', () => {
 
 async function fetchVideoInfo(url) {
     try {
-        const response = await fetch(`/info?url=${encodeURIComponent(url)}`);
+        const response = await fetch(`/api/info?url=${encodeURIComponent(url)}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -58,7 +58,7 @@ convertBtn.addEventListener('click', async () => {
             await fetchVideoInfo(url);
         }
 
-        const response = await fetch(`/convert?url=${encodeURIComponent(url)}`);
+        const response = await fetch(`/api/convert?url=${encodeURIComponent(url)}`);
 
         // Check content type to see if we got JSON error or actual file
         const contentType = response.headers.get('content-type');

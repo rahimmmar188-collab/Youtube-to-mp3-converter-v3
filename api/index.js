@@ -9,12 +9,7 @@ const port = 3000;
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.json());
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-});
 
 // Timeout wrapper
 const withTimeout = (handler, timeoutMs = 60000) => {
@@ -33,9 +28,8 @@ const withTimeout = (handler, timeoutMs = 60000) => {
 const { spawn } = require('child_process');
 const path = require('path');
 
-// Dynamically resolve yt-dlp path (works on Windows and Linux)
-// Note: We use .. to go up from the /api folder to find node_modules in the root
-const ytDlpPath = require('youtube-dl-exec').create(path.join(__dirname, '..', 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
+// Dynamically resolve yt-dlp path
+const ytDlpPath = require('youtube-dl-exec').create(path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
 
 // Helper to run yt-dlp and get JSON output
 const getInfo = (url) => {
@@ -161,10 +155,6 @@ app.get('/convert', async (req, res) => {
         console.error('[CONVERT] Catch Error:', err.message);
         if (!res.headersSent) res.status(500).json({ error: 'Server Error: ' + err.message });
     }
-});
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
 });
 
 module.exports = app;
