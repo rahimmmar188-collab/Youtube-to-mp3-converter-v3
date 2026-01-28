@@ -29,8 +29,8 @@ const withTimeout = (handler, timeoutMs = 60000) => {
 const { spawn } = require('child_process');
 const path = require('path');
 
-// Manually resolve yt-dlp binary path
-const ytDlpPath = path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp.exe');
+// Dynamically resolve yt-dlp path (works on Windows and Linux)
+const ytDlpPath = require('youtube-dl-exec').create(path.join(__dirname, 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
 
 // Helper to run yt-dlp and get JSON output
 const getInfo = (url) => {
@@ -161,3 +161,5 @@ app.get('/convert', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
+module.exports = app;
