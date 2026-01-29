@@ -1,9 +1,28 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-const ytDlpPath = process.platform === 'win32'
-    ? path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp.exe')
-    : require('youtube-dl-exec').path;
+const getYtDlpPath = () => {
+    if (process.platform === 'win32') {
+        const winPath = path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp.exe');
+        if (require('fs').existsSync(winPath)) return winPath;
+    }
+    try {
+        const ytdl = require('youtube-dl-exec');
+        if (ytdl.path) return ytdl.path;
+    } catch (e) { }
+    const possiblePaths = [
+        path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp'),
+        path.join(__dirname, '..', 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp'),
+        '/var/task/node_modules/youtube-dl-exec/bin/yt-dlp'
+    ];
+    for (const p of possiblePaths) {
+        if (require('fs').existsSync(p)) return p;
+    }
+    return 'yt-dlp';
+};
+
+const ytDlpPath = getYtDlpPath();
+console.log('[DEBUG] Path resolved to:', ytDlpPath);
 
 const getInfo = (url) => {
     return new Promise((resolve, reject) => {
