@@ -5,20 +5,21 @@ const ffmpegPath = require('ffmpeg-static');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
-// Dynamically resolve yt-dlp path
-const ytDlpPath = require('youtube-dl-exec').create(path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
+const ytDlpPath = process.platform === 'win32'
+    ? path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp.exe')
+    : require('youtube-dl-exec').path;
 
 const getInfo = (url) => {
     return new Promise((resolve, reject) => {
         const args = [url, '--dump-single-json', '--no-check-certificates', '--no-warnings'];
-        const process = spawn(ytDlpPath, args);
+        const ytProcess = spawn(ytDlpPath, args);
         let stdout = '';
-        process.stdout.on('data', (data) => stdout += data.toString());
-        process.on('close', (code) => {
+        ytProcess.stdout.on('data', (data) => stdout += data.toString());
+        ytProcess.on('close', (code) => {
             if (code === 0) resolve(JSON.parse(stdout));
-            else reject(new Error(`yt-dlp info failed`));
+            else reject(new Error(`yt-dlp info failed with code ${code}`));
         });
-        process.on('error', (err) => reject(err));
+        ytProcess.on('error', (err) => reject(err));
     });
 };
 
@@ -49,7 +50,7 @@ module.exports = async (req, res) => {
             .format('mp3')
             .on('error', (err) => {
                 console.error('[FFMPEG] Error:', err.message);
-                if (!res.headersSent) res.status(500).send('Conversion failed');
+                if (!res.headersSent) res.status(500).json({ error: 'Conversion failed' });
             })
             .on('end', () => {
                 if (ytDlpProcess.pid) try { ytDlpProcess.kill(); } catch (e) { }
@@ -59,6 +60,6 @@ module.exports = async (req, res) => {
 
     } catch (err) {
         console.error('[CONVERT] Error:', err);
-        if (!res.headersSent) res.status(500).send('Server Error: ' + err.message);
+        if (!res.headersSent) res.status(500).json({ error: 'Server Error: ' + err.message });
     }
 };

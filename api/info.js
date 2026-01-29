@@ -1,8 +1,9 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-// Dynamically resolve yt-dlp path
-const ytDlpPath = require('youtube-dl-exec').create(path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp')).path;
+const ytDlpPath = process.platform === 'win32'
+    ? path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp.exe')
+    : require('youtube-dl-exec').path;
 
 const getInfo = (url) => {
     return new Promise((resolve, reject) => {
@@ -13,12 +14,12 @@ const getInfo = (url) => {
             '--no-warnings',
             '--prefer-free-formats'
         ];
-        const process = spawn(ytDlpPath, args);
+        const ytProcess = spawn(ytDlpPath, args);
         let stdout = '';
         let stderr = '';
-        process.stdout.on('data', (data) => stdout += data.toString());
-        process.stderr.on('data', (data) => stderr += data.toString());
-        process.on('close', (code) => {
+        ytProcess.stdout.on('data', (data) => stdout += data.toString());
+        ytProcess.stderr.on('data', (data) => stderr += data.toString());
+        ytProcess.on('close', (code) => {
             if (code === 0) {
                 try {
                     resolve(JSON.parse(stdout));
@@ -29,7 +30,7 @@ const getInfo = (url) => {
                 reject(new Error(`yt-dlp exited with code ${code}: ${stderr}`));
             }
         });
-        process.on('error', (err) => reject(err));
+        ytProcess.on('error', (err) => reject(err));
     });
 };
 
